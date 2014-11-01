@@ -37,5 +37,9 @@
     "wejs",
     "plugin",
     "sails.js"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wejs/we-plugin-comment.git"
+  }
 }
