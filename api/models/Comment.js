@@ -34,6 +34,16 @@ module.exports = {
       type: 'text'
     },
 
+    modelName: {
+      type: 'string',
+      required: true
+    },
+
+    modelId: {
+      type: 'string',
+      required: true
+    },
+
     activities: {
       collection: 'activity',
       via: 'comment'

@@ -6,6 +6,8 @@
  */
 var util = require('util');
 var actionUtil = require('we-helpers').actionUtil;
+var _ = require('lodash');
+
 //var WN = require( process.cwd() + '/node_modules/we-plugin-notification');
 
 module.exports = {
@@ -15,19 +17,18 @@ module.exports = {
     var sails = req._sails;
     var Model = sails.models.comment;
 
-
     var comment = {};
     comment.body = req.param('body');
     comment.creator = req.user.id;
-    comment.post = req.param('post');
 
-    if(!comment.post){
-      sails.log.warn('Post id is required');
-      return res.send(400, {error: 'Post id is required' });
-    }
+    comment.modelName = req.param('modelName');
+    comment.modelId = req.param('modelId');
 
     Model.create(comment).exec(function(err, newInstance) {
-      if (err) return res.negotiate(err);
+      if (err) {
+        sails.log.error('Error on create comment', err);
+        return res.negotiate(err);
+      }
 
       if ( req._sails.hooks.pubsub && req.isSocket ) {
         // If we have the pubsub hook, use the model class's publish method
@@ -39,54 +40,52 @@ module.exports = {
       // TODO
       //WN.notify('comment', 'created', newInstance, req.user);
 
-      res.send({
-        comment: newInstance
-      });
+      res.ok(newInstance);
     });
   },
   findOne: function (req, res) {
     var sails = req._sails;
-    var Model = sails.models.comment;
+    var Model = req.context.Model;
+    var pk = req.context.pk;
 
-    var pk = actionUtil.requirePk(req);
-    var modelName = req.options.model || req.options.controller;
+    if (!req.context.record) return res.notFound('No record found with the specified `id`.');
 
     var query = Model.findOne(pk);
     //query = actionUtil.populateEach(query, req.options);
     query.exec(function found(err, matchingRecord) {
-      if (err) return res.serverError(err);
-      if(!matchingRecord) return res.notFound('No record found with the specified `id`.');
-      /*
-      if (sails.hooks.pubsub && req.isSocket) {
-        Model.subscribe(req, matchingRecord);
-        actionUtil.subscribeDeep(req, matchingRecord);
+      if (err) {
+        sails.log.error('CommentController:findOne', err);
+        return res.serverError(err);
       }
-      */
+      if(!matchingRecord) return res.notFound('No record found with the specified `id`.');
 
-      var resultObject = {};
-
-      resultObject[modelName] = matchingRecord;
-      res.send(resultObject);
+      res.ok(matchingRecord);
     });
   },
 
   find: function findRecords (req, res) {
-
+    var sails = req._sails;
     // Look up the model
-    var Model = actionUtil.parseModel(req);
+    var Model = req.context.Model;
 
-    var modelName = req.options.model || req.options.controller;
+    // 0 records for this query
+    if (req.context.count === 0) {
+      return res.ok([]);
+    }
 
     // Lookup for records that match the specified criteria
     var query = Model.find()
-    .where( actionUtil.parseCriteria(req) )
+    .where( req.context.where )
     .limit( actionUtil.parseLimit(req) )
     .skip( actionUtil.parseSkip(req) )
     .sort( actionUtil.parseSort(req) );
     // TODO: .populateEach(req.options);
     //query = actionUtil.populateEach(query, req.options);
-    query.exec(function found(err, matchingRecords) {
-      if (err) return res.serverError(err);
+    return query.exec(function found(err, matchingRecords) {
+      if (err) {
+        sails.log.error('Error on find comment', err);
+        return res.serverError(err);
+      }
 
       // Only `.watch()` for new instances of the model if
       // `autoWatch` is enabled.
@@ -101,21 +100,18 @@ module.exports = {
         });
       }
 
-      var resultObject = {};
-
-      resultObject[modelName] = matchingRecords;
-      res.send(resultObject);
-
+      return res.ok(matchingRecords);
     })
   },
 
   update: function updateOneRecord (req, res) {
 
     var sails = req._sails;
-    var Model = sails.models.comment;
-
+    var Model = req.context.Model;
     // Locate and validate the required `id` parameter.
-    var pk = actionUtil.requirePk(req);
+    var pk = req.context.pk;
+
+    if (!req.context.record) return res.notFound(pk);
 
     // Create `values` object (monolithic combination of all parameters)
     // But omit the blacklisted params (like JSONP callback param, etc.)
@@ -134,12 +130,15 @@ module.exports = {
     // (Note: this could be achieved in a single query, but a separate `findOne`
     //  is used first to provide a better experience for front-end developers
     //  integrating with the blueprint API.)
-    Model.findOne(pk).populateAll().exec(function found(err, matchingRecord) {
+    return Model.findOne(pk).populateAll().exec(function found(err, matchingRecord) {
 
-      if (err) return res.serverError(err);
+      if (err) {
+        sails.log.error('CommentController:update', err);
+        return res.serverError(err);
+      }
       if (!matchingRecord) return res.notFound();
 
-      Model.update(pk, values).exec(function updated(err, records) {
+      return Model.update(pk, values).exec(function updated(err, records) {
 
         // Differentiate between waterline-originated validation errors
         // and serious underlying issues. Respond with badRequest if a
@@ -173,13 +172,8 @@ module.exports = {
           );
         }
 
-        var modelName = req.options.model || req.options.controller;
 
-        var resultObject = {};
-
-        resultObject[modelName] = updatedRecord;
-
-        res.ok(resultObject);
+        return res.ok(matchingRecord);
       });// </updated>
     }); // </found>
   },
@@ -196,7 +190,7 @@ module.exports = {
       if (err) return res.serverError(err);
       if(!record) return res.notFound('No record found with the specified `id`.');
 
-      Model.destroy(pk).exec(function destroyedRecord (err) {
+      return Model.destroy(pk).exec(function destroyedRecord (err) {
         if (err) return res.negotiate(err);
 
         if (sails.hooks.pubsub) {
@@ -207,7 +201,7 @@ module.exports = {
           }
         }
 
-        return res.send(200,{});
+        return res.ok(record);
       });
     });
   }
