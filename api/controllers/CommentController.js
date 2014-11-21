@@ -45,10 +45,8 @@ module.exports = {
   },
   findOne: function (req, res) {
     var sails = req._sails;
-    var Model = req.context.Model;
-    var pk = req.context.pk;
-
-    if (!req.context.record) return res.notFound('No record found with the specified `id`.');
+    var Model = sails.models.comment;
+    var pk = actionUtil.requirePk(req);
 
     var query = Model.findOne(pk);
     //query = actionUtil.populateEach(query, req.options);
@@ -66,12 +64,7 @@ module.exports = {
   find: function findRecords (req, res) {
     var sails = req._sails;
     // Look up the model
-    var Model = req.context.Model;
-
-    // 0 records for this query
-    if (req.context.count === 0) {
-      return res.ok([]);
-    }
+    var Model = sails.models.comment;
 
     // Lookup for records that match the specified criteria
     var query = Model.find()
@@ -107,9 +100,9 @@ module.exports = {
   update: function updateOneRecord (req, res) {
 
     var sails = req._sails;
-    var Model = req.context.Model;
+    var Model = sails.models.comment;
     // Locate and validate the required `id` parameter.
-    var pk = req.context.pk;
+    var pk = actionUtil.requirePk(req);
 
     if (!req.context.record) return res.notFound(pk);
 
