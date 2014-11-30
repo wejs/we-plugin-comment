@@ -68,7 +68,7 @@ module.exports = {
 
     // Lookup for records that match the specified criteria
     var query = Model.find()
-    .where( req.context.where )
+    .where( req.context )
     .limit( actionUtil.parseLimit(req) )
     .skip( actionUtil.parseSkip(req) )
     .sort( actionUtil.parseSort(req) );
