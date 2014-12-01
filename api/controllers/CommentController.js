@@ -48,7 +48,7 @@ module.exports = {
     var Model = sails.models.comment;
     var pk = actionUtil.requirePk(req);
 
-    var query = Model.findOne(pk);
+    var query = Model.findOneById(pk);
     //query = actionUtil.populateEach(query, req.options);
     query.exec(function found(err, matchingRecord) {
       if (err) {
@@ -65,6 +65,7 @@ module.exports = {
     var sails = req._sails;
     // Look up the model
     var Model = sails.models.comment;
+    res.locals.metadata = {};
 
     // Lookup for records that match the specified criteria
     var query = Model.find()
@@ -80,20 +81,33 @@ module.exports = {
         return res.serverError(err);
       }
 
-      // Only `.watch()` for new instances of the model if
-      // `autoWatch` is enabled.
-      if (req._sails.hooks.pubsub && req.isSocket) {
-        Model.subscribe(req, matchingRecords);
-        if (req.options.autoWatch) {
-          Model.watch(req);
+      Model.count()
+      .where( req.context.where )
+      .exec(function(err, count){
+        if (err) {
+          sails.log.error('Error on get comments count', err);
+          return res.serverError(err);
         }
-        // Also subscribe to instances of all associated models
-        _.each(matchingRecords, function (record) {
-          actionUtil.subscribeDeep(req, record);
-        });
-      }
 
-      return res.ok(matchingRecords);
+        res.locals.metadata.count = count;
+
+        // Only `.watch()` for new instances of the model if
+        // `autoWatch` is enabled.
+        if (req._sails.hooks.pubsub && req.isSocket) {
+          Model.subscribe(req, matchingRecords);
+          if (req.options.autoWatch) {
+            Model.watch(req);
+          }
+          // Also subscribe to instances of all associated models
+          _.each(matchingRecords, function (record) {
+            actionUtil.subscribeDeep(req, record);
+          });
+        }
+
+        return res.ok(matchingRecords);
+
+      })
+
     })
   },
 
