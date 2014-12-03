@@ -82,7 +82,7 @@ module.exports = {
       }
 
       Model.count()
-      .where( req.context.where )
+      .where( actionUtil.parseCriteria(req) )
       .exec(function(err, count){
         if (err) {
           sails.log.error('Error on get comments count', err);
@@ -118,8 +118,6 @@ module.exports = {
     // Locate and validate the required `id` parameter.
     var pk = actionUtil.requirePk(req);
 
-    if (!req.context.record) return res.notFound(pk);
-
     // Create `values` object (monolithic combination of all parameters)
     // But omit the blacklisted params (like JSONP callback param, etc.)
     var values = actionUtil.parseValues(req);
@@ -137,7 +135,7 @@ module.exports = {
     // (Note: this could be achieved in a single query, but a separate `findOne`
     //  is used first to provide a better experience for front-end developers
     //  integrating with the blueprint API.)
-    return Model.findOne(pk).populateAll().exec(function found(err, matchingRecord) {
+    return Model.findOne(pk).exec(function found(err, matchingRecord) {
 
       if (err) {
         sails.log.error('CommentController:update', err);
