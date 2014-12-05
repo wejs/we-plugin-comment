@@ -98,15 +98,18 @@ module.exports = {
   beforeCreate: function(record, next) {
     var originalBody = record.body;
     // sanitize
-    record = SanitizeHtmlService.sanitizeAllAttr(record);
+    SanitizeHtmlService.sanitizeAllAttr(record);
     // save a boy version without all tags
     record.bodyClean = S(originalBody).stripTags().s;
     next();
   },
 
   beforeUpdate: function(record, next) {
+    var originalBody = record.body;
     // sanitize
-    record = SanitizeHtmlService.sanitizeAllAttr(record);
+    SanitizeHtmlService.sanitizeAllAttr(record);
+    // save a boy version without all tags
+    record.bodyClean = S(originalBody).stripTags().s;
     next();
   },
 

@@ -30,11 +30,10 @@ module.exports = {
         return res.negotiate(err);
       }
 
-      if ( req._sails.hooks.pubsub && req.isSocket ) {
+      if (req._sails.hooks.pubsub) {
         // If we have the pubsub hook, use the model class's publish method
         // to notify all subscribers about the created item
         Model.publishCreate(newInstance.toJSON(), req);
-
       }
 
       // TODO
@@ -163,10 +162,6 @@ module.exports = {
         var updatedRecord = records[0];
 
         if (req._sails.hooks.pubsub) {
-          if (req.isSocket) {
-            Model.subscribe(req, records);
-          }
-
           Model.publishUpdate(
             pk,
             _.cloneDeep(updatedRecord),
@@ -177,8 +172,7 @@ module.exports = {
           );
         }
 
-
-        return res.ok(matchingRecord);
+        return res.ok(updatedRecord);
       });// </updated>
     }); // </found>
   },
