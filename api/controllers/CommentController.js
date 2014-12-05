@@ -4,11 +4,12 @@
  * @module    :: Controller
  * @description :: Contains logic for handling requests.
  */
+var cwd = process.cwd();
 var util = require('util');
 var actionUtil = require('we-helpers').actionUtil;
+var WN = require(cwd + '/node_modules/we-plugin-notification');
 var _ = require('lodash');
-
-//var WN = require( process.cwd() + '/node_modules/we-plugin-notification');
+var async = require('async');
 
 module.exports = {
   create: function (req, res) {
@@ -16,30 +17,38 @@ module.exports = {
 
     var sails = req._sails;
     var Model = sails.models.comment;
+    var Mention = sails.models.mention;
 
-    var comment = {};
-    comment.body = req.param('body');
+    var comment = actionUtil.parseValues(req);
+
     comment.creator = req.user.id;
 
-    comment.modelName = req.param('modelName');
-    comment.modelId = req.param('modelId');
-
-    Model.create(comment).exec(function(err, newInstance) {
+    Model.create(comment).exec(function (err, newInstance) {
       if (err) {
         sails.log.error('Error on create comment', err);
         return res.negotiate(err);
       }
 
-      if (req._sails.hooks.pubsub) {
-        // If we have the pubsub hook, use the model class's publish method
-        // to notify all subscribers about the created item
-        Model.publishCreate(newInstance.toJSON(), req);
-      }
+      // update post mentions
+      Mention.updateModelMentions(req.user, 'body', newInstance.body, 'post', newInstance.id, function(err, mentionedUsers) {
+        if (err) {
+          sails.log.error('comment:create:Error on updateModelMentions', err);
+          return res.serverError();
+        }
 
-      // TODO
-      //WN.notify('comment', 'created', newInstance, req.user);
+        newInstance.mentions = mentionedUsers;
 
-      res.ok(newInstance);
+        if (req._sails.hooks.pubsub) {
+          // If we have the pubsub hook, use the model class's publish method
+          // to notify all subscribers about the created item
+          Model.publishCreate(newInstance.toJSON(), req);
+        }
+
+        WN.notify('comment', 'created', newInstance, req.user);
+
+        res.status(201);
+        res.ok(newInstance);
+      });
     });
   },
   findOne: function (req, res) {

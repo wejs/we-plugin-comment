@@ -34,6 +34,11 @@ module.exports = {
       type: 'text'
     },
 
+    // body small body text version or description
+    bodyTeaser: {
+      type: 'text'
+    },
+
     modelName: {
       type: 'string',
       required: true
@@ -101,6 +106,8 @@ module.exports = {
     SanitizeHtmlService.sanitizeAllAttr(record);
     // save a boy version without all tags
     record.bodyClean = S(originalBody).stripTags().s;
+    // small teaser text
+    record.bodyTeaser = record.bodyClean.substr(0, 100);
     next();
   },
 
@@ -110,6 +117,8 @@ module.exports = {
     SanitizeHtmlService.sanitizeAllAttr(record);
     // save a boy version without all tags
     record.bodyClean = S(originalBody).stripTags().s;
+    // small teaser text
+    record.bodyTeaser = record.bodyClean.substr(0, 100);
     next();
   },
 
