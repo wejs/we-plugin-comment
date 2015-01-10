@@ -1,0 +1,5 @@
+{{#each}}
+  {{render 'comment/item' this}}
+{{else}}
+  <div>{{{t 'comments.empty' loginUrl="/login" registerUrl="/signup"}}}</div>
+{{/each}}
