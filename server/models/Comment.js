@@ -8,6 +8,7 @@
 
 var S = require('string');
 var defaultCommentLimit = 4;
+var _ = require('lodash');
 
 module.exports = {
   schema: true,
@@ -49,11 +50,6 @@ module.exports = {
       required: true
     },
 
-    activities: {
-      collection: 'activity',
-      via: 'comment'
-    },
-
     // comment parent, to replay one specific comment
     /*
     replyTo: {
@@ -72,23 +68,11 @@ module.exports = {
       // remove password
       var obj = this.toObject();
 
-      // set default objectType
-      obj.objectType = 'comment';
-      // ember data type
-      obj.type = 'comment';
-
       // set postId for help with ember data async load
       if(  _.isObject(obj.post) && obj.post.id ) {
         obj.postId = obj.post.id;
       } else if( obj.post ) {
         obj.postId = obj.post;
-      }
-
-      // set creator_id
-      if(  _.isString(obj.creator) ){
-        obj.creator_id = obj.creator;
-      }else if(_.isObject(obj.creator) && obj.creator.id){
-        obj.creator_id = obj.creator.id;
       }
 
       // set url for this content
