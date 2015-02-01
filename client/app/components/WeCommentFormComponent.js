@@ -15,6 +15,14 @@ App.WeCommentFormComponent = Ember.Component.extend({
 
   userId: null,
 
+  currentUser: function() {
+    return App.currentUser;
+  }.property('App.currentUser'),
+
+  auth: function() {
+    return App.auth;
+  }.property('App.auth'),
+
   init: function() {
     this._super();
 
@@ -67,10 +75,12 @@ App.WeCommentFormComponent = Ember.Component.extend({
       this.$('textarea').focus();
 
       setTimeout(function() {
-        self.$('textarea').atwho({
-          at: '@',
-          data: App.currentUser.get('mentionOptions'),
-        });
+        if (self.$('textarea').atwho) {
+          self.$('textarea').atwho({
+            at: '@',
+            data: App.currentUser.get('mentionOptions'),
+          });
+        }
       }, 100);
     },
     closeComentTextarea: function(){

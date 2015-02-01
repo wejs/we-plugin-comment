@@ -17,7 +17,6 @@ module.exports = {
 
     var sails = req._sails;
     var Model = sails.models.comment;
-    var Mention = sails.models.mention;
 
     var comment = actionUtil.parseValues(req);
 
@@ -29,14 +28,48 @@ module.exports = {
         return res.negotiate(err);
       }
 
-      // update post mentions
-      Mention.updateModelMentions(req.user, 'body', newInstance.body, 'post', newInstance.id, function(err, mentionedUsers) {
-        if (err) {
-          sails.log.error('comment:create:Error on updateModelMentions', err);
-          return res.serverError();
-        }
+      async.parallel([
+        function updateModelMentions(done) {
+          if (!req._sails.models.mention) return done();
+          // update comment mentions
+          req._sails.models.mention
+          .updateModelMentions(
+            req.user, 'body',
+            newInstance.body,
+            'comment',
+            newInstance.id,
+            function(err, mentionedUsers) {
+              if (err) {
+                sails.log.error('comment:create:Error on updateModelMentions', err);
+                return done(err);
+              }
 
-        newInstance.mentions = mentionedUsers;
+              newInstance.mentions = mentionedUsers;
+              done();
+            }
+          );
+        },
+        function registerActivity(done) {
+          if (!req._sails.models.activity) return done();
+          // register one activity on create
+          req._sails.models.activity.create({
+            actor: newInstance.creator,
+            verb: req.options.controller + '_' + req.options.action,
+            modelName: 'comment',
+            modelId: newInstance.id
+          }).exec(function(error, activity) {
+            // if has one error in activity creation, log it
+            if (error) {
+              sails.log.error('CommentModel:create: error on create Activity: ',error);
+              return done(error);
+            }
+            done();
+          });
+        }
+      ], function(err) {
+        if(err) {
+          return res.serverError(err);
+        }
 
         if (req._sails.hooks.pubsub) {
           // If we have the pubsub hook, use the model class's publish method
@@ -48,9 +81,11 @@ module.exports = {
 
         res.status(201);
         res.ok(newInstance);
-      });
+      })
+
     });
   },
+
   findOne: function (req, res) {
     var sails = req._sails;
     var Model = sails.models.comment;
@@ -212,6 +247,9 @@ module.exports = {
         return res.ok(record);
       });
     });
-  }
+  },
 
+
+  add: function (req, res) { return res.notFound(); },
+  remove: function (req, res) { return res.notFound(); }
 };

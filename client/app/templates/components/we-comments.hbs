@@ -2,11 +2,15 @@
   {{#if comments}}
     {{#if hasMoreComments}}
       <div class="comments-header">
-        <div class="comment-total">Exibindo {{comments.length}} de {{meta.count}} comentarios</div> -
-        <button {{action 'loadAllComments'}}> mostrar todos?</button>
+        <span class="comment-total">
+          {{t 'comments.list.length' lengthBinding=comments.length totalBinding=meta.count}}
+        </span> -
+        <a href="javascript:;" {{action 'loadAllComments'}}>{{t 'comments.loadAll'}}</a>
       </div>
     {{else}}
-      <div class="comment-total">Exibindo {{comments.length}} comentario(s)</div>
+      <div class="comment-total">
+        {{t 'comments.list.length.all' lengthBinding=comments.length}}
+      </div>
     {{/if}}
   {{/if}}
   {{render 'comments/list' comments}}

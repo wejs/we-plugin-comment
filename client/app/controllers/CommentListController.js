@@ -1,5 +1,9 @@
 
 App.CommentsListController = Ember.ArrayController.extend({
   sortProperties: ['createdAt'],
-  sortAscending: true
+  sortAscending: true,
+
+  auth: function() {
+    return App.auth;
+  }.property('App.auth')
 });

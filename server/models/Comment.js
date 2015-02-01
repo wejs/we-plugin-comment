@@ -106,24 +106,6 @@ module.exports = {
     next();
   },
 
-  // After create, register one activity
-  afterCreate: function(comment, next) {
-    // register one activity on create
-    Activity.create({
-      actor: comment.creator.id,
-      verb: 'comment',
-      comment: comment.id,
-      post: comment.post
-    }).exec(function(error, activity) {
-      // if has one error in activity creation, log it
-      if (error) {
-        sails.log.error('CommentModel:create: error on create Activity: ',error);
-      }
-
-      next();
-    });
-  },
-
   // methods
   getCommentsAndCount: function(postId, callback){
     Comment.count()

@@ -5,7 +5,7 @@
 , "curly": false
 , "devel": false
 , "devel": true
-, "eqeqeq": true
+, "eqeqeq": false
 , "eqnull": true
 , "es5": false
 , "evil": false
@@ -32,6 +32,10 @@
   , "beforeEach"
   , "after"
   , "afterEach"
+  , "App"
+  , "Ember"
+  , "DS"
+  , "we"
   ]
 , "smarttabs": true
 , "strict": false
