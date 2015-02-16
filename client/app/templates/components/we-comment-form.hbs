@@ -1,4 +1,4 @@
-{{#if userId}}
+{{#can 'comment_create'}}
   <div class="comment-form">
     <div class="user-avatar-area pull-left">
       <span class="creator-avatar avatar-small">
@@ -27,4 +27,4 @@
   </div>
 {{else}}
   <div>{{t 'comments.notAuthenticated' loginUrlBinding=auth.loginUrl registerUrlBinding=auth.register}}</div>
-{{/if}}
+{{/can}}
