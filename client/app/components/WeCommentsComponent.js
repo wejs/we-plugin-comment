@@ -27,18 +27,20 @@ App.WeCommentsComponent = Ember.Component.extend({
     var modelId  = this.get('commentedModelId');
 
     if (!modelName || ! modelId) {
-      throw new Error('commentedModelName and commentedModelId is required for use we-comments');
+      //commentedModelName and commentedModelId is required for use we-comments
+      this.set('comments', null);
+    } else {
+      this.set('comments', this.store.filter('comment', function(resource) {
+        if (
+          Ember.get(resource, 'modelName') == modelName &&
+          Ember.get(resource, 'modelId') == modelId
+        ) {
+          return true;
+        }
+        return false;
+      }))
     }
 
-    this.set('comments', this.store.filter('comment', function(resource) {
-      if (
-        Ember.get(resource, 'modelName') == modelName &&
-        Ember.get(resource, 'modelId') == modelId
-      ) {
-        return true;
-      }
-      return false;
-    }))
   }.observes('commentedModelName', 'commentedModelId').on('init'),
 
   didInsertElement: function didInsertElement() {
