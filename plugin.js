@@ -3,64 +3,103 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   var plugin = new Plugin(__dirname);
   // set plugin configs
   plugin.setConfigs({
-    defaultCommentLimit: 3,
-    permissions: {
-      'find_comment': {
-        'group': 'comment',
-        'title': 'Find comments',
-        'description': 'Find and find all comments'
-      },
-      'create_comment': {
-        'group': 'comment',
-        'title': 'Create one comment',
-        'description': 'Create one new comment'
-      },
-      'update_comment': {
-        'group': 'comment',
-        'title': 'Update one comment',
-        'description': 'Update one new comment'
-      },
-      'delete_comment': {
-        'group': 'comment',
-        'title': 'Delete one comment',
-        'description': 'Delete one comment record'
-      },
+    latestCommentLimit: 3,
+    comments: {
+      models:  {
+       post: true,
+       article: true
+     }
     }
+  });
+
+  plugin.setResource({
+    name: 'comment'
   });
 
   plugin.setRoutes({
-    // Comment
-    'get /comment/:id([0-9]+)': {
-      controller    : 'comment',
-      action        : 'findOne',
-      model         : 'comment',
-      permission    : 'find_comment'
-    },
-    'get /comment': {
-      controller    : 'comment',
-      action        : 'find',
-      model         : 'comment',
-      permission    : 'find_comment'
-    },
-    'post /comment': {
-      controller    : 'comment',
-      action        : 'create',
-      model         : 'comment',
-      permission    : 'create_comment'
-    },
-    'put /comment/:id([0-9]+)': {
-      controller    : 'comment',
-      action        : 'update',
-      model         : 'comment',
-      permission    : 'update_comment'
-    },
-    'delete /comment/:id([0-9]+)': {
-      controller    : 'comment',
-      action        : 'destroy',
-      model         : 'comment',
-      permission    : 'delete_comment'
+    'get /comment-form/:modelName/:modelId': {
+      controller: 'comment',
+      action: 'getCommentForm',
+      template: 'comment/commentForm',
+      responseType: 'modal'
     }
   });
 
+  // use this hook in one we.js plugin to change a res.ok response
+  plugin.hooks.on('we:before:send:okResponse', function (data, done) {
+    // {
+    //   req: req,
+    //   res: res,
+    //   data: data
+    // }
+
+    if (!data.res.locals.data || !data.res.locals.model) return done();
+
+    var modelName = data.res.locals.model;
+    var functions = [];
+    var req = data.req;
+    var records, record;
+    var Comment = req.we.db.models.comment;
+    var userId;
+
+
+    if (plugin.modelHaveComments(req.we, modelName)) {
+      if (req.user) {
+        userId = req.user.id
+      } else {
+        userId = null
+      }
+
+      if (req.we.utils._.isArray(data.res.locals.data)) {
+        records = data.res.locals.data;
+      } else {
+        record = data.res.locals.data;
+      }
+
+      if (records) {
+        functions.push( function (done) {
+          // load comments and count for evety record
+          data.req.we.utils.async.each(records, function (record, next) {
+            if (!record.metadata) record.metadata = {};
+
+           Comment.getLastestCommentsAndCount(record.id, modelName, function (err, result) {
+             if (err) return next(err);
+             record.metadata.comments = result.comments;
+             record.metadata.commentsCount = result.count;
+             next();
+           });
+          }, done);
+        });
+
+      } else if (record) {
+        functions.push( function (done) {
+          if (!record.metadata) record.metadata = {};
+          Comment.getLastestCommentsAndCount(record.id, modelName, function (err, result) {
+            if (err) return done(err);
+             record.metadata.comments = result.comments;
+             record.metadata.commentsCount = result.count;
+            done();
+          });
+        });
+      }
+    }
+
+    data.req.we.utils.async.series(functions, done);
+  });
+
+  plugin.modelHaveComments = function modelHaveComments(we, modelName) {
+    // TODO
+    return true;
+  };
+
+  plugin.addCss('comment', {
+    weight: 8, pluginName: 'we-plugin-comment',
+    path: 'files/public/comment.css'
+  });
+
+  plugin.addJs('comment', {
+    weight: 15, pluginName: 'we-plugin-comment',
+    path: 'files/public/comment.js'
+  });
   return plugin;
 };

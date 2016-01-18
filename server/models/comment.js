@@ -6,75 +6,68 @@
  *
  */
 
-var S = require('string');
-
 module.exports = function Model(we) {
   // set sequelize model define and options
   var model = {
     definition: {
-      creatorId: {
-        type: we.db.Sequelize.BIGINT,
-      },
-
-      title: {
-        type: we.db.Sequelize.TEXT
+      body: {
+        type: we.db.Sequelize.TEXT,
+        allowNull: false,
+        formFieldType: 'html',
+        formFieldFocus: true
       },
 
       published: {
         type: we.db.Sequelize.BOOLEAN,
-        defaultValue: true
-      },
-
-      body: {
-        type: we.db.Sequelize.TEXT,
-        allowNull: false
-      },
-
-      // body without tags
-      bodyClean: {
-        type: we.db.Sequelize.TEXT
-      },
-
-      // body small body text version or description
-      bodyTeaser: {
-        type: we.db.Sequelize.TEXT
+        defaultValue: true,
+        formFieldType: null
       },
 
       modelName: {
         type: we.db.Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        formFieldType: 'hidden'
       },
 
       modelId: {
         type: we.db.Sequelize.INTEGER,
+        allowNull: false,
+        formFieldType: 'hidden'
+      }
+    },
+
+    associations: {
+      creator: {
+        type: 'belongsTo',
+        model: 'user',
         allowNull: false
       }
     },
 
     options: {
       classMethods: {
-        // methods
-        // TODO
-        getCommentsAndCount: function(postId, callback){
-          Comment.count()
-          .where({
-            post: postId
-          }).exec(function(err, commentCount){
-            if (err) return callback(err);
-
-            Comment.find()
-            .sort('updatedAt DESC')
-            .limit(we.config.defaultCommentLimit)
-            .where({
-              post: postId
-            }).exec(function(err, comments){
-              if (err) return callback(err);
-
-              return callback(null, comments, commentCount);
-            });
-          });
+        getLastestCommentsAndCount: function getLastestCommentsAndCount(modelId, modelName, done) {
+          we.db.models.comment.count({
+            where: {
+              modelId: modelId,
+              modelName: modelName
+            }
+          }).then(function (count){
+            we.db.models.comment.findAll({
+              where: {
+                modelName: modelName,
+                modelId: modelId
+              },
+              limit: we.config.latestCommentLimit,
+              order: [
+                ['id',  'desc']
+              ],
+              include: [{model: we.db.models.user, as: 'creator'}]
+            }).then(function (comments) {
+              done(null, { comments: comments, count: count })
+            }).catch(done);
+          }).catch(done);
         }
-
       },
       instanceMethods: {},
       hooks: {
@@ -85,30 +78,7 @@ module.exports = function Model(we) {
             if(!commentedRecord) return next('modelId.required');
             return next();
           }).catch(next);
-        },
-
-        beforeCreate: function(record, options, next) {
-          var originalBody = record.body;
-          // sanitize
-          we.sanitizer.sanitizeAllAttr(record);
-          // save a boy version without all tags
-          record.bodyClean = S(originalBody).stripTags().s;
-          // small teaser text
-          record.bodyTeaser = record.bodyClean.substr(0, 100);
-          next(null, record);
-        },
-
-        beforeUpdate: function(record, options, next) {
-          var originalBody = record.body;
-          // sanitize
-          we.sanitizer.sanitizeAllAttr(record);
-          // save a boy version without all tags
-          record.bodyClean = S(originalBody).stripTags().s;
-          // small teaser text
-          record.bodyTeaser = record.bodyClean.substr(0, 100);
-          next(null, record);
-        },
-
+        }
       }
     }
   }

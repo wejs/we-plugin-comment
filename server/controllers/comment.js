@@ -6,14 +6,29 @@
  */
 
 module.exports = {
-  create: function (req, res) {
+  getCommentForm: function(req, res) {
+    res.locals.commentRecord = {};
+
+    res.locals.commentRecord.modelName = req.params.modelName;
+    res.locals.commentRecord.modelId = req.params.modelId;
+
+    res.ok();
+  },
+  create: function create(req, res) {
     var comment = req.body;
     if (req.user) comment.creatorId = req.user.id;
 
     res.locals.Model.create(comment)
     .then(function (newInstance) {
-      res.created(newInstance);
-    });
+      res.locals.data = newInstance;
+
+      if (res.locals.responseType == 'modal') {
+        res.locals.template = 'comment/findOne';
+        res.ok();
+      } else {
+        res.created(newInstance);
+      }
+    }).catch(res.queryError);
   },
 
   findOne: function (req, res) {

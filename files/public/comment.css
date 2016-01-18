@@ -1,0 +1,45 @@
+.comment-button {
+  padding: 7px;
+  border: 1px solid #999;
+  margin: 5px 0px;
+  cursor: text;
+}
+
+.comment-form {
+  display: none;
+}
+
+.isCommenting .comment-form {
+  display: block;
+}
+
+.isCommenting .comment-button {
+  display: none;
+}
+
+.comment-creator-avatar img {
+  float: left;
+  vertical-align: top;
+  width: 35px;
+}
+
+.comment-actions {
+  margin-left: 25px;
+}
+
+.comment-actions a {
+  padding: 2px;
+  font-size: 12px;
+  border: initial;
+  background: transparent;
+
+}
+
+.comment-teaser {
+  margin: 10px 0px;
+}
+
+.comments {
+  max-height: 300px;
+  overflow: auto;
+}
