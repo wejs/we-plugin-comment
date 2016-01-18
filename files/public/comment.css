@@ -38,6 +38,10 @@
 .comments {
   max-height: 300px;
   overflow: auto;
-  border: inset 2px;
+
   padding: 3px 10px;
+}
+
+.have-more-comments {
+  border: inset 2px;
 }

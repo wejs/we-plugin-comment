@@ -7,7 +7,7 @@
   <div class="comments-sumary" {{#unless comments.length}}style="display:none;"{{/unless}}>
     {{{t 'comment.list.sumary' size=comments.length count=count}}}
   </div>
-  <div data-comments-page="1" data-comments-url="/comment?modelName={{modelName}}&modelId={{modelId}}" class="comments">
+  <div data-comments-page="1" data-comments-url="/comment?modelName={{modelName}}&modelId={{modelId}}" class="comments {{#if haveMore}}have-more-comments{{/if}}">
     {{#each comments}}
       {{render-record-teaser modelName='comment' record=this locals=../locals}}
     {{/each}}

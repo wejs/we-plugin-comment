@@ -7,5 +7,6 @@
   "form-helper-comment-setAlias": "Link único para accesso ao comentário",
   "comment.delete.confirm.msg": "Você tem certeza que deseja deletar esse comentário?",
   "comment.form.button": "Clique aqui para comentar",
-  "comment.list.sumary": "Exibindo <span class='size'>{{size}}</span> de <span class='total'>{{count}}</span> comentários"
+  "comment.list.sumary": "Exibindo <span class='size'>{{size}}</span> de <span class='total'>{{count}}</span> comentários",
+  "comment.list.show.all": "Ver mais comentários"
 }
