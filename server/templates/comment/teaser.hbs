@@ -5,6 +5,8 @@
       <span class='creator-displayName'>{{record.creator.displayName}}</span>
     {{/link-to}}
   {{/if}}
+
+  <span class="post-date">{{we-time-ago record.createdAt locals=locals}}</span>
   <div class="comment-body">{{{record.body}}}</div>
   <div class="comment-footer">
     <div class="comment-actions">

@@ -25,7 +25,8 @@ module.exports = function(we) {
         modelName: options.hash.modelName,
         modelId: options.hash.modelId,
       },
-      locals: options.hash.locals
+      locals: options.hash.locals,
+      haveMore: ( ( options.hash.comments.length || 0 ) < options.hash.count )
     });
   }
 }

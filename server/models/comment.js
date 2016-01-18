@@ -62,7 +62,7 @@ module.exports = function Model(we) {
               order: [
                 ['id',  'desc']
               ],
-              include: [{model: we.db.models.user, as: 'creator'}]
+              include: [{model: we.db.models.user, as: 'creator', attributes: ['id', 'displayName']}]
             }).then(function (comments) {
               done(null, { comments: comments, count: count })
             }).catch(done);

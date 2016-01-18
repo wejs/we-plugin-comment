@@ -23,10 +23,6 @@
   width: 35px;
 }
 
-.comment-actions {
-  margin-left: 25px;
-}
-
 .comment-actions a {
   padding: 2px;
   font-size: 12px;
@@ -42,4 +38,6 @@
 .comments {
   max-height: 300px;
   overflow: auto;
+  border: inset 2px;
+  padding: 3px 10px;
 }

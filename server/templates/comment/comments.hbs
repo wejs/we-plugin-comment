@@ -6,13 +6,16 @@
   {{/can}}
   <div class="comments-sumary" {{#unless comments.length}}style="display:none;"{{/unless}}>
     {{{t 'comment.list.sumary' size=comments.length count=count}}}
-    <a class="show-more-comments-link" href="javascript: we.comment.showAll('{{modelName}}', '{{modelId}}');">
-      <span class="show-all-comments">{{t 'comment.list.show.all'}}</span>
-    </a>
   </div>
-  <div class="comments">
-  {{#each comments}}
-    {{render-record-teaser modelName='comment' record=this locals=../locals}}
-  {{/each}}
+  <div data-comments-page="1" data-comments-url="/comment?modelName={{modelName}}&modelId={{modelId}}" class="comments">
+    {{#each comments}}
+      {{render-record-teaser modelName='comment' record=this locals=../locals}}
+    {{/each}}
   </div>
+
+  {{#if haveMore}}
+  <a class="show-more-comments-link" href="javascript: we.comment.showAll('{{modelName}}', '{{modelId}}');">
+    <span class="show-all-comments">{{t 'comment.list.show.all'}}</span>
+  </a>
+  {{/if}}
 </div>

@@ -92,7 +92,69 @@ we.comment = {
   },
 
   showAll: function(modelName, modelId) {
+    var commentsBlockArea = $('#comment-'+modelName +'-'+modelId);
 
+    commentsBlockArea.find('.show-more-comments-link').remove();
+
+    var commentsList = commentsBlockArea.find('.comments');
+
+    we.comment.getComments(commentsList);
+  },
+
+  getComments: function(commentsList) {
+    var url = commentsList.attr('data-comments-url');
+    var page = commentsList.attr('data-comments-page');
+
+    $.ajax({
+      url: url + '&page=' + page,
+      method: 'GET',
+      responseType: '',
+      contentType: 'application/json; charset=utf-8',
+      data: {
+        responseType: 'modal',
+        teaserList: true
+      },
+      // processData: false
+    }).then(function (r) {
+      // dont have more
+      if (!r) return commentsList.attr('data-have-more', 'false');
+
+      if (page == '1') {
+        commentsList.html(r);
+        we.comment.setLoadMore(commentsList);
+      } else {
+        commentsList.append(r);
+      }
+
+      commentsList.attr('data-comments-page', Number(page)+1);
+
+      commentsList.parent().find('.comments-sumary .size')
+      .text(commentsList.children('.comment-teaser').length);
+
+    }).always(function () {
+
+      commentsList.attr('data-loading-more', 'false');
+
+    }).fail(function (err) {
+      console.error('Error on get comments:', err);
+    });
+  },
+
+  setLoadMore: function(commentsList) {
+    commentsList.on('scroll', function() {
+      if (
+        $(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight &&
+        commentsList.attr('data-loading-more') != 'true' &&
+        commentsList.attr('data-have-more') != 'false'
+      ) {
+        commentsList.attr('data-loading-more', 'true');
+        we.comment.loadMore(commentsList);
+      }
+    })
+  },
+
+  loadMore: function loadMore(commentsList) {
+    we.comment.getComments(commentsList);
   }
 };
 
