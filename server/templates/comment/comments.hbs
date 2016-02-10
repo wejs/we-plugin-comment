@@ -1,4 +1,4 @@
-<div id="comment-{{modelName}}-{{modelId}}" class="comment-{{modelName}}-{{modelId}} comments-area {{#unless comments.length}}comments-empty{{/unless}}"  data-modelname="{{modelName}}" data-modelid="{{modelId}}">
+<div id="comment-{{modelName}}-{{modelId}}" class="comment-{{modelName}}-{{modelId}} comments-area {{#unless comments.length}}comments-empty{{/unless}}" data-modelname="{{modelName}}" data-modelid="{{modelId}}">
   {{#can permission='create_comment' roleNames=locals.req.userRoleNames}}
     <div class="comment-button" onclick="we.comment.showForm('{{modelName}}', '{{modelId}}', event);">{{t "comment.form.button"}}</div>
     <div class="loading-comment-form"></div>
@@ -19,3 +19,6 @@
   </a>
   {{/if}}
 </div>
+<script>$(function(){
+  we.comment.pubSub.register('comment-{{modelName}}-{{modelId}}');
+});</script>

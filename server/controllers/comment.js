@@ -18,16 +18,38 @@ module.exports = {
     var comment = req.body;
     if (req.user) comment.creatorId = req.user.id;
 
+    var we = req.we;
+
     res.locals.Model.create(comment)
     .then(function (newInstance) {
-      res.locals.data = newInstance;
+      newInstance.getCreator().then(function (creator){
+        newInstance.creator = creator;
 
-      if (res.locals.responseType == 'modal') {
-        res.locals.template = 'comment/findOne';
-        res.ok();
-      } else {
-        res.created(newInstance);
-      }
+        res.locals.data = newInstance;
+
+        // render comment html record
+        var recordHTML = req.we.view.renderTemplate(
+          'comment/findOne',
+          res.locals.theme,
+          res.locals
+        );
+
+        if (we.io) {
+          var room = 'comment:'+comment.modelName+':'+comment.modelId;
+          we.io.sockets.emit('an event sent to all connected clients');
+          we.io.sockets.in(room).emit('comment:created', {
+            record: newInstance,
+            html: recordHTML
+          });
+        }
+
+        if (res.locals.responseType == 'modal') {
+          res.send(recordHTML);
+        } else {
+          res.created(newInstance);
+        }
+
+      }).catch(res.queryError);
     }).catch(res.queryError);
   },
 

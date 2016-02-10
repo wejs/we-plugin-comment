@@ -69,8 +69,6 @@ we.comment = {
       formData[d.name] = d.value;
     });
 
-    var commentArea = $('#comment-'+formData.modelName+ '-' + formData.modelId);
-
     var url = form.attr('action');
 
     $.ajax({
@@ -82,13 +80,36 @@ we.comment = {
     }).then(function (r) {
       // remove and close the form
       we.comment.close.bind(self)(event);
-      // then append the new comment
-      commentArea.children('.comments').prepend(r);
+
+      // get comment id
+      var html = $.parseHTML(r);
+      var id = html[0].id;
+      formData.id = id.replace('comment-', '');
+      // render the comment
+      we.comment.renderComment(formData, html);
     }).fail(function (err) {
+      // TODO!
       console.error('Error on create comment:', err);
     });
 
     return false;
+  },
+
+  renderComment: function renderComment(record, html) {
+    // check if this comment already are in html
+    var comment = $('#comment-'+record.id);
+    if (comment && comment.length) {
+      console.log('>>1')
+      comment.replaceWith(html);
+    } else {
+      console.log('>>2')
+      // get comment area
+      var commentArea = $('#comment-'+record.modelName+ '-' + record.modelId);
+      if (commentArea && commentArea.length) {
+        // then append the new comment
+        commentArea.children('.comments').prepend(html);
+      }
+    }
   },
 
   showAll: function(modelName, modelId) {
@@ -112,7 +133,8 @@ we.comment = {
       contentType: 'application/json; charset=utf-8',
       data: {
         responseType: 'modal',
-        teaserList: true
+        teaserList: true,
+        redirectTo: window.location.pathname
       },
       // processData: false
     }).then(function (r) {
@@ -155,7 +177,30 @@ we.comment = {
 
   loadMore: function loadMore(commentsList) {
     we.comment.getComments(commentsList);
+  },
+
+  pubSub: {
+    register: function register(commentsAreaId) {
+      var area = $('#'+commentsAreaId);
+      var modelName = area.attr('data-modelname');
+      var modelId = area.attr('data-modelid');
+
+      if (we.io && we.socket) {
+        we.socket.emit('comment:subscribe', {
+          modelName: modelName,
+          modelId: modelId
+        });
+      }
+    },
+
+    setCommentEvents: function setCommentEvents() {
+      we.socket.on('comment:created', function (data) {
+        we.comment.renderComment(data.record, data.html);
+      });
+    }
   }
 };
+
+we.comment.pubSub.setCommentEvents();
 
 })(window.we);

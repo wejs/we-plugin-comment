@@ -1,4 +1,4 @@
-<div id="comment-teaser-{{record.id}}" class="comment-teaser" data-we-model="comment" data-we-modelId="{{record.id}}" >
+<div id="comment-{{record.id}}" class="comment-teaser" data-we-model="comment" data-we-modelId="{{record.id}}" >
   {{#if record.creator}}
     {{#link-to 'user.findOne' record.creatorId class="comment-creator-avatar"}}
       {{we-avatar id=record.creatorId style='thumbnail'}}
@@ -10,8 +10,8 @@
   <div class="comment-body">{{{record.body}}}</div>
   <div class="comment-footer">
     <div class="comment-actions">
-      {{we-action-edit-btn 'comment'  record locals.req record.id}}
-      {{we-action-delete-btn 'comment' record locals.req record.id}}
+      {{we-action-edit-btn 'comment'  record locals.req record.id redirectTo=locals.redirectTo}}
+      {{we-action-delete-btn 'comment' record locals.req record.id  redirectTo=locals.redirectTo}}
     </div>
   </div>
 </div>
