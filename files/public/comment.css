@@ -41,7 +41,11 @@
 
   padding: 3px 10px;
 }
-
+/*
 .have-more-comments {
   border: inset 2px;
+}*/
+
+.comment-creator-avatar img {
+  margin: 0px 5px 3px 0px;
 }
