@@ -1,7 +1,7 @@
 {
   "name": "we-plugin-comment",
   "description": "We.js plugin we-plugin-comment",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {
