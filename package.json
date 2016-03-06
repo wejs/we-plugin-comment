@@ -23,9 +23,6 @@
     "we-theme-admin-default": "^0.3.1",
     "we-theme-site-wejs": "^0.3.11"
   },
-  "peerDependencies": {
-    "we-core": "~0.3"
-  },
   "engines": {
     "node": ">=0.10.0"
   },
