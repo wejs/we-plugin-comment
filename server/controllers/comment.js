@@ -43,7 +43,7 @@ module.exports = {
           });
         }
 
-        if (res.locals.responseType == 'modal') {
+        if (req.accepts('html') && req.query.contentOnly) {
           res.send(recordHTML);
         } else {
           res.created(newInstance);

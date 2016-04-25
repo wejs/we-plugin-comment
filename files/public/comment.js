@@ -15,7 +15,7 @@ we.comment = {
     loading.show();
 
     var url = '/comment-form/'+ modelName +'/'+ modelId;
-    url += '?redirectTo='+location.pathname;
+    url += '?redirectTo='+location.pathname+ '&contentOnly=true';
 
     $.ajax({
       url: url
@@ -72,7 +72,7 @@ we.comment = {
     var url = form.attr('action');
 
     $.ajax({
-      url: url + '?responseType=modal',
+      url: url + '?contentOnly=true',
       method: 'POST',
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(formData),

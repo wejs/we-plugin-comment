@@ -1,4 +1,3 @@
-
 module.exports = function loadPlugin(projectPath, Plugin) {
   var plugin = new Plugin(__dirname);
   // set plugin configs
@@ -6,9 +5,10 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     latestCommentLimit: 3,
     comments: {
       models:  {
-       post: true,
-       article: true
-     }
+        post: true,
+        article: true,
+        cfnews: true
+      }
     }
   });
 
@@ -20,8 +20,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     'get /comment-form/:modelName/:modelId': {
       controller: 'comment',
       action: 'getCommentForm',
-      template: 'comment/commentForm',
-      responseType: 'modal'
+      template: 'comment/commentForm'
     }
   });
 
