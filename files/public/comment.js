@@ -99,10 +99,10 @@ we.comment = {
     // check if this comment already are in html
     var comment = $('#comment-'+record.id);
     if (comment && comment.length) {
-      console.log('>>1')
+      // console.log('>>1')
       comment.replaceWith(html);
     } else {
-      console.log('>>2')
+      // console.log('>>2')
       // get comment area
       var commentArea = $('#comment-'+record.modelName+ '-' + record.modelId);
       if (commentArea && commentArea.length) {
@@ -194,6 +194,10 @@ we.comment = {
     },
 
     setCommentEvents: function setCommentEvents() {
+      if (!we.io || !we.socket) return console.warn(
+        'we-plugin-comment: we-plugin-socket.io is required for use real time features in comments component'
+      );
+
       we.socket.on('comment:created', function (data) {
         we.comment.renderComment(data.record, data.html);
       });
