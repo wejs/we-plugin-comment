@@ -1,7 +1,7 @@
 {
   "name": "we-plugin-comment",
-  "description": "We.js plugin we-plugin-comment",
-  "version": "1.0.3",
+  "description": "We.js comments plugin",
+  "version": "1.1.0",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {
@@ -9,36 +9,11 @@
     "lodash": "^3.2.0",
     "string": "^3.0.0"
   },
-  "devDependencies": {
-    "fs-extra": "^0.18.2",
-    "istanbul": "^0.3.14",
-    "jshint": "^2.8.0",
-    "mocha": "^2.2.5",
-    "rimraf": "^2.3.4",
-    "supertest": "^1.0.1",
-    "we-core": "^0.3.26",
-    "we-plugin-file": "^0.3.1",
-    "we-plugin-page": "^0.3.0",
-    "we-test-tools": "^0.3.3",
-    "we-theme-admin-default": "^0.3.1",
-    "we-theme-site-wejs": "^0.3.11"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "scripts": {
-    "lint": "./node_modules/.bin/jshint .",
-    "test": "NODE_ENV=test LOG_LV=info ./node_modules/.bin/mocha test/bootstrap.js test/**/*.test.js",
-    "prepublish": "npm prune"
-  },
+  "scripts": {},
+  "author": "Alberto Souza <contato@albertosouza.net>",
+  "repository": "wejs/we-plugin-comment",
   "keywords": [
-    "we.js",
-    "wejs",
-    "plugin",
-    "comment"
+    "wejs-plugin"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:wejs/we-plugin-comment.git"
-  }
+  "wejs": {}
 }

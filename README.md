@@ -1,6 +1,6 @@
 # We.js comments plugin
 
-> Add comments in your we.js project
+Add comments to We.js project
 
 ## Configuration
 
@@ -23,7 +23,7 @@
 ## Installation
 
 ```sh
-npm install --save we-plugin-comment
+we i we-plugin-comment
 ```
 
 ## Features
