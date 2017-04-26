@@ -9,6 +9,11 @@
 module.exports = function(we) {
   return function helper() {
     var options = arguments[arguments.length-1];
+    var haveMore = false;
+
+    if (options.hash.comments) {
+      haveMore = ( ( options.hash.comments.length || 0 ) < options.hash.count );
+    }
 
     return we.view.renderTemplate('comment/comments', options.hash.locals.theme, {
       comments: options.hash.comments,
@@ -20,7 +25,7 @@ module.exports = function(we) {
         modelId: options.hash.modelId,
       },
       locals: options.hash.locals,
-      haveMore: ( ( options.hash.comments.length || 0 ) < options.hash.count )
+      haveMore: haveMore
     });
   }
 }
