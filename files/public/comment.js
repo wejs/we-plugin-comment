@@ -39,6 +39,11 @@ we.comment = {
 
       // add form in html
       commentFormArea.html(form);
+
+      // focus the text area if the editor is tinyMCE:
+      if (window.tinyMCE) {
+        window.tinyMCE.EditorManager.get(form.find('textarea').attr('id')).focus();
+      }
     }).fail(function (err) {
       loading.hide();
       console.error('error in get comment form:', err);
