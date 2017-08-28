@@ -63,9 +63,14 @@ module.exports = function Model(we) {
                 ['id',  'desc']
               ],
               include: [{model: we.db.models.user, as: 'creator', attributes: ['id', 'displayName']}]
-            }).then(function (comments) {
+            })
+            .then(function (comments) {
               done(null, { comments: comments, count: count })
+
+              return null;
             }).catch(done);
+
+            return null;
           }).catch(done);
         }
       },
@@ -75,9 +80,14 @@ module.exports = function Model(we) {
           if( !we.db.models[record.modelName] ) return next('modelName.required');
           we.db.models[record.modelName].findById(record.modelId)
           .then(function (commentedRecord) {
-            if(!commentedRecord) return next('modelId.required');
-            return next();
-          }).catch(next);
+            if(!commentedRecord) {
+              next('modelId.required');
+            } else {
+              next();
+            }
+            return null;
+          })
+          .catch(next);
         }
       }
     }

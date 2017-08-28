@@ -49,8 +49,13 @@ module.exports = {
           res.created(newInstance);
         }
 
-      }).catch(res.queryError);
-    }).catch(res.queryError);
+        return null;
+      })
+      .catch(res.queryError);
+
+      return null;
+    })
+    .catch(res.queryError);
   },
 
   findOne: function findOne(req, res) {
@@ -63,10 +68,15 @@ module.exports = {
       }
     })
     .then(function (record) {
-      if (!record) return res.notFound();
+      if (!record) {
+        res.notFound();
+      } else {
+        res.goTo( record.getUrlPathAlias() );
+      }
 
-      res.goTo( record.getUrlPathAlias() );
-    }).catch(res.queryError);
+      return null;
+    })
+    .catch(res.queryError);
   },
 
   find: function findRecords (req, res) {
@@ -87,7 +97,10 @@ module.exports = {
         res.locals.template = 'comment/teaser-list';
       }
 
-      return res.ok(comments);
-    }).catch(res.queryError);
+      res.ok(comments);
+
+      return null;
+    })
+    .catch(res.queryError);
   }
 };

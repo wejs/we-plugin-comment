@@ -13,7 +13,9 @@ module.exports = function (projectPath, Widget) {
     } else {
       widget.hide = true;
     }
-    return next();
+    next();
+
+    return null;
   }
 
   return widget;
