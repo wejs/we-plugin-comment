@@ -71,7 +71,9 @@ we.comment = {
   onSubmitForm: function onSubmitForm (event) {
     event.preventDefault();
 
+
     var self = this;
+    var $sumary = $(event.target).parent().parent().find('.comments-sumary');
 
     var form = this.form;
     var formData = {};
@@ -100,6 +102,9 @@ we.comment = {
       var html = $.parseHTML(r);
       var id = html[0].id;
       formData.id = id.replace('comment-', '');
+
+      increaceCount($sumary);
+
       // render the comment
       we.comment.renderComment(formData, html);
     }).fail(function (err) {
@@ -129,11 +134,8 @@ we.comment = {
 
   showAll: function(modelName, modelId) {
     var commentsBlockArea = $('#comment-'+modelName +'-'+modelId);
-
     commentsBlockArea.find('.show-more-comments-link').remove();
-
     var commentsList = commentsBlockArea.find('.comments');
-
     we.comment.getComments(commentsList);
   },
 
@@ -144,15 +146,16 @@ we.comment = {
     $.ajax({
       url: url + '&page=' + page,
       method: 'GET',
-      responseType: '',
-      contentType: 'application/json; charset=utf-8',
+      // contentType: 'application/json; charset=utf-8',
       data: {
         responseType: 'modal',
+        contentOnly: true,
         teaserList: true,
         redirectTo: window.location.pathname
       },
       // processData: false
-    }).then(function (r) {
+    })
+    .then(function (r) {
       // dont have more
       if (!r) return commentsList.attr('data-have-more', 'false');
 
@@ -165,9 +168,9 @@ we.comment = {
 
       commentsList.attr('data-comments-page', Number(page)+1);
 
-      commentsList.parent().find('.comments-sumary .size')
+      commentsList.parent()
+      .find('.comments-sumary .size')
       .text(commentsList.children('.comment-teaser').length);
-
     }).always(function () {
 
       commentsList.attr('data-loading-more', 'false');
@@ -221,5 +224,13 @@ we.comment = {
 };
 
 we.comment.pubSub.setCommentEvents();
+
+function increaceCount($sumary) {
+  var $total = $sumary.find('.total');
+  var $size = $sumary.find('.size');
+
+  $total.text( Number($total.text())+1 );
+  $size.text( Number($size.text())+1 );
+}
 
 })(window.we);

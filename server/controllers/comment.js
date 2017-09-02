@@ -92,12 +92,23 @@ module.exports = {
 
     res.locals.Model.findAll(res.locals.query)
     .then(function(comments) {
+      res.locals.data = comments;
+
+      res.locals.responseType = 'modal';
 
       if (req.query.teaserList) {
         res.locals.template = 'comment/teaser-list';
       }
 
-      res.ok(comments);
+      if (req.query.contentOnly) {
+        res.send(req.we.view.renderTemplate(
+          'comment/teaser-list',
+          res.locals.theme,
+          res.locals
+        ));
+      } else {
+        res.ok();
+      }
 
       return null;
     })
