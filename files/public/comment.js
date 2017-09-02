@@ -57,7 +57,12 @@ we.comment = {
     // show commentButton  or label
     this.commentButton.show();
 
-    this.form.destroy();
+    if (window.tinyMCE) {
+
+    } else {
+      this.form.destroy();
+    }
+
     // scroll to comment
     $(document.body).scrollTop(this.commentButton.offset().top);
 
@@ -74,6 +79,10 @@ we.comment = {
       formData[d.name] = d.value;
     });
 
+    if (window.tinyMCE) {
+      formData.body = window.tinyMCE.activeEditor.getContent();
+    }
+
     var url = form.attr('action');
 
     $.ajax({
@@ -82,7 +91,8 @@ we.comment = {
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(formData),
       processData: false
-    }).then(function (r) {
+    })
+    .then(function (r) {
       // remove and close the form
       we.comment.close.bind(self)(event);
 
