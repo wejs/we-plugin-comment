@@ -5,7 +5,7 @@
  */
 
 module.exports = function (projectPath, Widget) {
-  var widget = new Widget('comment-form', __dirname);
+  const widget = new Widget('comment-form', __dirname);
 
   widget.viewMiddleware = function viewMiddleware(widget, req, res, next) {
     if (res.locals.model && res.locals.id) {

@@ -1,5 +1,5 @@
 module.exports = function loadPlugin(projectPath, Plugin) {
-  var plugin = new Plugin(__dirname);
+  const plugin = new Plugin(__dirname);
   // set plugin configs
   plugin.setConfigs({
     latestCommentLimit: 3,
@@ -25,7 +25,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   });
 
   // use this hook in one we.js plugin to change a res.ok response
-  plugin.hooks.on('we:before:send:okResponse', function (data, done) {
+  plugin.hooks.on('we:before:send:okResponse', (data, done)=> {
     // {
     //   req: req,
     //   res: res,
@@ -34,13 +34,11 @@ module.exports = function loadPlugin(projectPath, Plugin) {
 
     if (!data.res.locals.data || !data.res.locals.model) return done();
 
-    var modelName = data.res.locals.model;
-    var functions = [];
-    var req = data.req;
-    var records, record;
-    var Comment = req.we.db.models.comment;
-    var userId;
-
+    const modelName = data.res.locals.model;
+    const functions = [];
+    const req = data.req;
+    let records, record, userId;
+    let Comment = req.we.db.models.comment;
 
     if (plugin.modelHaveComments(req.we, modelName)) {
       if (req.user) {
@@ -56,12 +54,12 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       }
 
       if (records) {
-        functions.push( function (done) {
+        functions.push( (done)=> {
           // load comments and count for evety record
-          data.req.we.utils.async.each(records, function (record, next) {
+          data.req.we.utils.async.each(records, (record, next)=> {
             if (!record.metadata) record.metadata = {};
 
-           Comment.getLastestCommentsAndCount(record.id, modelName, function (err, result) {
+           Comment.getLastestCommentsAndCount(record.id, modelName, (err, result)=> {
              if (err) return next(err);
              record.metadata.comments = result.comments;
              record.metadata.commentsCount = result.count;
@@ -71,9 +69,9 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         });
 
       } else if (record) {
-        functions.push( function (done) {
+        functions.push( (done)=> {
           if (!record.metadata) record.metadata = {};
-          Comment.getLastestCommentsAndCount(record.id, modelName, function (err, result) {
+          Comment.getLastestCommentsAndCount(record.id, modelName, (err, result)=> {
             if (err) return done(err);
              record.metadata.comments = result.comments;
              record.metadata.commentsCount = result.count;
@@ -87,12 +85,12 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   });
 
   // this evnet only run if we-plugin-socketio is instaled in your project
-  plugin.events.on('we:after:load:socket.io', function (opts) {
+  plugin.events.on('we:after:load:socket.io', (opts)=> {
     // opts: { we: we, server: server }
-    var we = opts.we;
+    const we = opts.we;
 
-    we.io.on('connection', function (socket) {
-      socket.on('comment:subscribe', function(data) {
+    we.io.on('connection', (socket)=> {
+      socket.on('comment:subscribe', (data)=> {
         if (!data.modelName || !data.modelId) {
           we.log.warn('we-plugin-comment: comment:subscribe: modelName and modelId is required');
           // invalid request
@@ -100,7 +98,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         }
 
         // join room to receive updates
-        var roomName = 'comment:'+data.modelName+':'+data.modelId;
+        let roomName = 'comment:'+data.modelName+':'+data.modelId;
         socket.join(roomName);
 
         we.log.verbose('we-plugin-comment: comment:subscribe: user joined room: '+roomName);

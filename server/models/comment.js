@@ -8,7 +8,7 @@
 
 module.exports = function Model(we) {
   // set sequelize model define and options
-  var model = {
+  const model = {
     definition: {
       body: {
         type: we.db.Sequelize.TEXT,
@@ -46,13 +46,14 @@ module.exports = function Model(we) {
 
     options: {
       classMethods: {
-        getLastestCommentsAndCount: function getLastestCommentsAndCount(modelId, modelName, done) {
+        getLastestCommentsAndCount(modelId, modelName, done) {
           we.db.models.comment.count({
             where: {
               modelId: modelId,
               modelName: modelName
             }
-          }).then(function (count){
+          })
+          .then( (count)=> {
             we.db.models.comment.findAll({
               where: {
                 modelName: modelName,
@@ -64,22 +65,24 @@ module.exports = function Model(we) {
               ],
               include: [{model: we.db.models.user, as: 'creator', attributes: ['id', 'displayName']}]
             })
-            .then(function (comments) {
+            .then( (comments)=> {
               done(null, { comments: comments, count: count })
 
               return null;
-            }).catch(done);
+            })
+            .catch(done);
 
             return null;
-          }).catch(done);
+          })
+          .catch(done);
         }
       },
       instanceMethods: {},
       hooks: {
-        validate: function(record, options, next) {
+        validate(record, options, next) {
           if( !we.db.models[record.modelName] ) return next('modelName.required');
           we.db.models[record.modelName].findById(record.modelId)
-          .then(function (commentedRecord) {
+          .then( (commentedRecord)=> {
             if(!commentedRecord) {
               next('modelId.required');
             } else {

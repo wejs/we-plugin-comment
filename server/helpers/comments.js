@@ -8,8 +8,8 @@
 
 module.exports = function(we) {
   return function helper() {
-    var options = arguments[arguments.length-1];
-    var haveMore = false;
+    const options = arguments[arguments.length-1];
+    let haveMore = false;
 
     if (options.hash.comments) {
       haveMore = ( ( options.hash.comments.length || 0 ) < options.hash.count );

@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-  getCommentForm: function getCommentForm(req, res) {
+  getCommentForm(req, res) {
     res.locals.commentRecord = {};
 
     res.locals.commentRecord.modelName = req.params.modelName;
@@ -14,28 +14,28 @@ module.exports = {
 
     res.ok();
   },
-  create: function create(req, res) {
-    var comment = req.body;
+  create(req, res) {
+    const comment = req.body;
     if (req.user) comment.creatorId = req.user.id;
 
-    var we = req.we;
+    const we = req.we;
 
     res.locals.Model.create(comment)
-    .then(function (newInstance) {
-      newInstance.getCreator().then(function (creator){
+    .then( (newInstance)=> {
+      newInstance.getCreator().then( (creator)=> {
         newInstance.creator = creator;
 
         res.locals.data = newInstance;
 
         // render comment html record
-        var recordHTML = req.we.view.renderTemplate(
+        let recordHTML = req.we.view.renderTemplate(
           'comment/findOne',
           res.locals.theme,
           res.locals
         );
 
         if (we.io) {
-          var room = 'comment:'+comment.modelName+':'+comment.modelId;
+          let room = 'comment:'+comment.modelName+':'+comment.modelId;
           we.io.sockets.emit('an event sent to all connected clients');
           we.io.sockets.in(room).emit('comment:created', {
             record: newInstance,
@@ -58,7 +58,7 @@ module.exports = {
     .catch(res.queryError);
   },
 
-  findOne: function findOne(req, res) {
+  findOne(req, res) {
     if (!res.locals.data || !req.we.db.models[res.locals.data.modelName])
       return res.notFound();
 
@@ -67,7 +67,7 @@ module.exports = {
         id: res.locals.data.modelId
       }
     })
-    .then(function (record) {
+    .then( (record)=> {
       if (!record) {
         res.notFound();
       } else {
@@ -79,9 +79,9 @@ module.exports = {
     .catch(res.queryError);
   },
 
-  find: function findRecords (req, res) {
-    var modelName = req.query.modelName;
-    var modelId = req.query.modelId;
+  find(req, res) {
+    let modelName = req.query.modelName;
+    let modelId = req.query.modelId;
 
     res.locals.query.where.modelName = modelName;
     res.locals.query.where.modelId = modelId;
@@ -91,7 +91,7 @@ module.exports = {
     ]);
 
     res.locals.Model.findAll(res.locals.query)
-    .then(function(comments) {
+    .then( (comments)=> {
       res.locals.data = comments;
 
       res.locals.responseType = 'modal';
