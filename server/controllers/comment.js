@@ -6,6 +6,24 @@
  */
 
 module.exports = {
+  /**
+   * Default count action
+   *
+   * Built for only send count as JSON
+   *
+   * @param  {Object} req express.js request
+   * @param  {Object} res express.js response
+   */
+  count(req, res) {
+    return res.locals.Model
+    .count(res.locals.query)
+    .then( (count)=> {
+      res.status(200).send({ count: count });
+      return null;
+    })
+    .catch(res.queryError);
+  },
+
   getCommentForm(req, res) {
     res.locals.commentRecord = {};
 

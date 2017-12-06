@@ -19,7 +19,8 @@ we.comment = {
 
     $.ajax({
       url: url
-    }).then(function (result) {
+    })
+    .then(function (result) {
       commentFormArea.show();
       // overryde default on submit
       var form = $(result);
@@ -139,6 +140,54 @@ we.comment = {
     we.comment.getComments(commentsList);
   },
 
+  getNewComments: function getNewComments(modelName, modelId) {
+    var self = this;
+    var $area = $('#comment-'+modelName +'-'+modelId);
+    // var $sumary = $area.find('.comments-sumary');
+    // var $total = $sumary.find('.total');
+    var $list = $area.find('.comments');
+    var $size = $list.parent().find('.comments-sumary .size');
+
+    // var initialCount = $list.children('.comment-teaser').length
+
+    var url = $list.attr('data-comments-url');
+    $.ajax({
+      url: url + '&page=1',
+      method: 'GET',
+      // contentType: 'application/json; charset=utf-8',
+      data: {
+        responseType: 'modal',
+        contentOnly: true,
+        teaserList: true,
+        since: self.pubSub.lastCommentDate,
+        redirectTo: window.location.pathname
+      },
+      // processData: false
+    })
+    .then(function (r) {
+      // should but dont got more, skip
+      if (!r) return null;
+
+      $list.prepend(r);
+
+      // var newItemsCount = $list.children('.comment-teaser').length - initialCount;
+
+      // $total.text( Number($total.text()) + Number(newItemsCount) );
+      $size.text($list.children('.comment-teaser').length);
+    })
+    .always(function () {
+
+      self.pubSub.haveNewCommnets = false;
+      self.pubSub.lastCommentDate = new Date().toISOString();
+
+      $area.find('.comments-sumary-have-new').hide();
+      $area.find('.cshn-count').text(0);
+    })
+    .fail(function (err) {
+      console.error('Error on get comments:', err);
+    });
+  },
+
   getComments: function(commentsList) {
     var url = commentsList.attr('data-comments-url');
     var page = commentsList.attr('data-comments-page');
@@ -198,32 +247,85 @@ we.comment = {
   },
 
   pubSub: {
+    haveNewCommnets: false,
+    timeToNextPing: 1000,
+    lastCommentDate: new Date().toISOString(),
     register: function register(commentsAreaId) {
+      // start the pooling for new comments:
+      this.checkIfHaveNewComments(commentsAreaId);
+    },
+
+    checkIfHaveNewComments: function checkIfHaveNewComments(commentsAreaId) {
+      var self = this;
+
+      if (self.haveNewCommnets) {
+        setTimeout(function () {
+          self.checkIfHaveNewComments(commentsAreaId)
+        }, (self.timeToNextPing*2) );
+        return null;
+      }
+
       var area = $('#'+commentsAreaId);
       var modelName = area.attr('data-modelname');
       var modelId = area.attr('data-modelid');
 
-      if (we.io && we.socket) {
-        we.socket.emit('comment:subscribe', {
+      // if (we.io && we.socket) {
+      //   we.socket.emit('comment:subscribe', {
+      //     modelName: modelName,
+      //     modelId: modelId
+      //   });
+      // }
+
+      var url = '/comment/count';
+
+      $.ajax({
+        url: url,
+        method: 'GET',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        processData: true,
+        data: {
           modelName: modelName,
-          modelId: modelId
-        });
-      }
-    },
+          modelId: modelId,
+          since: self.lastCommentDate,
+          // redirectTo: location.pathname,
+          // contentOnly: true
+        }
+      })
+      .then(function (r) {
+        if (!r || !r.count) {
+          area.find('.comments-sumary-have-new').hide();
+          area.find('.cshn-count').text(0);
+          // no comments found.
+          return;
+        }
 
-    setCommentEvents: function setCommentEvents() {
-      if (!we.io || !we.socket) return console.warn(
-        'we-plugin-comment: we-plugin-socket.io is required for use real time features in comments component'
-      );
+        self.haveNewCommnets = true;
 
-      we.socket.on('comment:created', function (data) {
-        we.comment.renderComment(data.record, data.html);
+        var $sumary = area.find('.comments-sumary');
+        var $total = $sumary.find('.total');
+        $total.text( Number($total.text()) + Number(r.count) );
+
+        area.find('.comments-sumary-have-new').show();
+        area.find('.cshn-count').text(r.count);
+        return null;
+      })
+      .fail(function (err) {
+        console.error('Error on create comment:', err);
+        setTimeout(function () {
+          self.checkIfHaveNewComments(commentsAreaId)
+        }, (self.timeToNextPing*2));
+        return null;
+      })
+      .always(function(){
+        setTimeout(function () {
+          self.checkIfHaveNewComments(commentsAreaId)
+        }, self.timeToNextPing);
+        return null;
       });
     }
   }
 };
-
-we.comment.pubSub.setCommentEvents();
 
 function increaceCount($sumary) {
   var $total = $sumary.find('.total');

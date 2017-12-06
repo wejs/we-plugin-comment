@@ -38,7 +38,7 @@
 .comments {
   max-height: 300px;
   overflow: auto;
-
+  border: #ddd inset;
   padding: 3px 10px;
 }
 /*

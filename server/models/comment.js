@@ -47,14 +47,16 @@ module.exports = function Model(we) {
     options: {
       classMethods: {
         getLastestCommentsAndCount(modelId, modelName, done) {
-          we.db.models.comment.count({
+          we.db.models.comment
+          .count({
             where: {
               modelId: modelId,
               modelName: modelName
             }
           })
           .then( (count)=> {
-            we.db.models.comment.findAll({
+            return we.db.models.comment
+            .findAll({
               where: {
                 modelName: modelName,
                 modelId: modelId
@@ -67,12 +69,8 @@ module.exports = function Model(we) {
             })
             .then( (comments)=> {
               done(null, { comments: comments, count: count })
-
               return null;
-            })
-            .catch(done);
-
-            return null;
+            });
           })
           .catch(done);
         }
