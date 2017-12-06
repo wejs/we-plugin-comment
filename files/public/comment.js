@@ -248,7 +248,7 @@ we.comment = {
 
   pubSub: {
     haveNewCommnets: false,
-    timeToNextPing: 1000,
+    timeToNextPing: 15000,
     lastCommentDate: new Date().toISOString(),
     register: function register(commentsAreaId) {
       // start the pooling for new comments:
