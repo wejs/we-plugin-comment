@@ -101,14 +101,18 @@ module.exports = {
     let modelName = req.query.modelName;
     let modelId = req.query.modelId;
 
-    res.locals.query.where.modelName = modelName;
-    res.locals.query.where.modelId = modelId;
+    if (!modelName || !modelId) {
+      // load all comments only if user can manage_all_comments
+      if (!req.we.acl.canStatic('manage_all_comments', req.userRoleNames)) {
+        return res.forbidden();
+      }
+    } else {
+      res.locals.query.where.modelName = modelName;
+      res.locals.query.where.modelId = modelId;
+    }
 
-    res.locals.query.order.unshift([
-      'id', 'desc'
-    ]);
-
-    res.locals.Model.findAll(res.locals.query)
+    res.locals.Model
+    .findAll(res.locals.query)
     .then( (comments)=> {
       res.locals.data = comments;
 

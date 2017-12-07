@@ -17,9 +17,7 @@ we.comment = {
     var url = '/comment-form/'+ modelName +'/'+ modelId;
     url += '?redirectTo='+location.pathname+ '&contentOnly=true';
 
-    $.ajax({
-      url: url
-    })
+    $.ajax({ url: url })
     .then(function (result) {
       commentFormArea.show();
       // overryde default on submit

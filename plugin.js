@@ -9,6 +9,13 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         article: true,
         cfnews: true
       }
+    },
+    permissions: {
+      'manage_all_comments': {
+        'group': 'comment',
+        'title': 'View all comments',
+        'description': 'View, edit and delete all comments in this system'
+      }
     }
   });
 
