@@ -1,5 +1,14 @@
+/**
+ * We.js comments plugin main file
+ */
+
+const notifications = require('./lib/notifications.js');
+
 module.exports = function loadPlugin(projectPath, Plugin) {
   const plugin = new Plugin(__dirname);
+
+  plugin.notifications = notifications;
+
   // set plugin configs
   plugin.setConfigs({
     latestCommentLimit: 3,

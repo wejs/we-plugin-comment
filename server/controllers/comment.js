@@ -5,6 +5,8 @@
  * @description :: Contains logic for handling requests.
  */
 
+const notifications = require('../../lib/notifications.js');
+
 module.exports = {
   /**
    * Default count action
@@ -38,9 +40,12 @@ module.exports = {
 
     const we = req.we;
 
-    res.locals.Model.create(comment)
+    res.locals.Model
+    .create(comment)
     .then( (newInstance)=> {
-      newInstance.getCreator().then( (creator)=> {
+      newInstance
+      .getCreator()
+      .then( (creator)=> {
         newInstance.creator = creator;
 
         res.locals.data = newInstance;
@@ -61,6 +66,8 @@ module.exports = {
           });
         }
 
+        notifications.notify(req, res, newInstance, creator);
+
         if (req.accepts('html') && req.query.contentOnly) {
           res.send(recordHTML);
         } else {
@@ -77,10 +84,12 @@ module.exports = {
   },
 
   findOne(req, res) {
-    if (!res.locals.data || !req.we.db.models[res.locals.data.modelName])
+    if (!res.locals.data || !req.we.db.models[res.locals.data.modelName]) {
       return res.notFound();
+    }
 
-    req.we.db.models[res.locals.data.modelName].findOne({
+    req.we.db.models[res.locals.data.modelName]
+    .findOne({
       where: {
         id: res.locals.data.modelId
       }

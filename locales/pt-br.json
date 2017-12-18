@@ -9,5 +9,6 @@
   "comment.form.button": "Clique aqui para comentar",
   "comment.list.sumary": "Exibindo <span class='size'>{{size}}</span> de <span class='total'>{{count}}</span> comentários",
   "comment.list.show.all": "Ver mais comentários",
-  "widget.comment-form.label": "Widget com comentários para conteúdos"
+  "widget.comment-form.label": "Widget com comentários para conteúdos",
+  "comment.post.create.notification.title": "Novo comentário do(a) <a href='{{actorURL}}'>{{actor.displayName}}</a> no(a) <a href='{{recordURL}}'>{{title}}</a>"
 }

@@ -78,8 +78,12 @@ module.exports = function Model(we) {
       instanceMethods: {},
       hooks: {
         validate(record, options, next) {
-          if( !we.db.models[record.modelName] ) return next('modelName.required');
-          we.db.models[record.modelName].findById(record.modelId)
+          if( !we.db.models[record.modelName] ) {
+            return next('modelName.required');
+          }
+
+          we.db.models[record.modelName]
+          .findById(record.modelId)
           .then( (commentedRecord)=> {
             if(!commentedRecord) {
               next('modelId.required');
