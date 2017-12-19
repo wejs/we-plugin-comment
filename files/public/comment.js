@@ -106,7 +106,8 @@ we.comment = {
 
       // render the comment
       we.comment.renderComment(formData, html);
-    }).fail(function (err) {
+    })
+    .fail(function (err) {
       // TODO!
       console.error('Error on create comment:', err);
     });
@@ -118,10 +119,8 @@ we.comment = {
     // check if this comment already are in html
     var comment = $('#comment-'+record.id);
     if (comment && comment.length) {
-      // console.log('>>1')
       comment.replaceWith(html);
     } else {
-      // console.log('>>2')
       // get comment area
       var commentArea = $('#comment-'+record.modelName+ '-' + record.modelId);
       if (commentArea && commentArea.length) {
@@ -246,7 +245,7 @@ we.comment = {
 
   pubSub: {
     haveNewCommnets: false,
-    timeToNextPing: 15000,
+    timeToNextPing: 15000, // 15000
     lastCommentDate: new Date().toISOString(),
     register: function register(commentsAreaId) {
       // start the pooling for new comments:
@@ -285,24 +284,30 @@ we.comment = {
         data: {
           modelName: modelName,
           modelId: modelId,
-          since: self.lastCommentDate,
+          // since: self.lastCommentDate,
           // redirectTo: location.pathname,
           // contentOnly: true
         }
       })
       .then(function (r) {
-        if (!r || !r.count) {
+        if ( !r || !r.count ) {
           area.find('.comments-sumary-have-new').hide();
           area.find('.cshn-count').text(0);
           // no comments found.
           return;
         }
 
-        self.haveNewCommnets = true;
-
         var $sumary = area.find('.comments-sumary');
         var $total = $sumary.find('.total');
-        $total.text( Number($total.text()) + Number(r.count) );
+
+        if (Number($total.text()) >= Number(r.count)) {
+          // loadded all comments
+          return;
+        }
+
+        self.haveNewCommnets = true;
+
+        $total.text( String(r.count) );
 
         area.find('.comments-sumary-have-new').show();
         area.find('.cshn-count').text(r.count);
@@ -310,13 +315,10 @@ we.comment = {
       })
       .fail(function (err) {
         console.error('Error on create comment:', err);
-        setTimeout(function () {
-          self.checkIfHaveNewComments(commentsAreaId)
-        }, (self.timeToNextPing*2));
         return null;
       })
-      .always(function(){
-        setTimeout(function () {
+      .always(function() {
+        setTimeout(function() {
           self.checkIfHaveNewComments(commentsAreaId)
         }, self.timeToNextPing);
         return null;
