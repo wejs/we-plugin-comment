@@ -140,26 +140,20 @@ we.comment = {
   getNewComments: function getNewComments(modelName, modelId) {
     var self = this;
     var $area = $('#comment-'+modelName +'-'+modelId);
-    // var $sumary = $area.find('.comments-sumary');
-    // var $total = $sumary.find('.total');
     var $list = $area.find('.comments');
     var $size = $list.parent().find('.comments-sumary .size');
-
-    // var initialCount = $list.children('.comment-teaser').length
 
     var url = $list.attr('data-comments-url');
     $.ajax({
       url: url + '&page=1',
       method: 'GET',
-      // contentType: 'application/json; charset=utf-8',
       data: {
         responseType: 'modal',
         contentOnly: true,
         teaserList: true,
         since: self.pubSub.lastCommentDate,
         redirectTo: window.location.pathname
-      },
-      // processData: false
+      }
     })
     .then(function (r) {
       // should but dont got more, skip
@@ -266,13 +260,6 @@ we.comment = {
       var modelName = area.attr('data-modelname');
       var modelId = area.attr('data-modelid');
 
-      // if (we.io && we.socket) {
-      //   we.socket.emit('comment:subscribe', {
-      //     modelName: modelName,
-      //     modelId: modelId
-      //   });
-      // }
-
       var url = '/comment/count';
 
       $.ajax({
@@ -283,10 +270,7 @@ we.comment = {
         processData: true,
         data: {
           modelName: modelName,
-          modelId: modelId,
-          // since: self.lastCommentDate,
-          // redirectTo: location.pathname,
-          // contentOnly: true
+          modelId: modelId
         }
       })
       .then(function (r) {
@@ -300,7 +284,7 @@ we.comment = {
         var $sumary = area.find('.comments-sumary');
         var $total = $sumary.find('.total');
 
-        if (Number($total.text()) >= Number(r.count)) {
+        if ( Number($total.text()) >= Number(r.count)) {
           // loadded all comments
           return;
         }
