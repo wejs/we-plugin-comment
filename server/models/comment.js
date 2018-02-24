@@ -77,22 +77,24 @@ module.exports = function Model(we) {
       },
       instanceMethods: {},
       hooks: {
-        validate(record, options, next) {
-          if( !we.db.models[record.modelName] ) {
-            return next('modelName.required');
-          }
-
-          we.db.models[record.modelName]
-          .findById(record.modelId)
-          .then( (commentedRecord)=> {
-            if(!commentedRecord) {
-              next('modelId.required');
-            } else {
-              next();
+        beforeValidate(record) {
+          return new Promise( (resolve, reject)=> {
+            if( !we.db.models[record.modelName] ) {
+              return reject('modelName.required');
             }
-            return null;
-          })
-          .catch(next);
+
+            we.db.models[record.modelName]
+            .findById(record.modelId)
+            .then( (commentedRecord)=> {
+              if(!commentedRecord) {
+                reject('modelId.required');
+              } else {
+                resolve();
+              }
+              return null;
+            })
+            .catch(reject);
+          });
         }
       }
     }
