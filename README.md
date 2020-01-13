@@ -6,7 +6,7 @@ Add comments to We.js project
 
 [project]/config/local.js
 
-```js
+```
     // ...
     latestCommentLimit: 3,// limit for preloaded comments
     comments: {
@@ -50,4 +50,4 @@ Add comments programaticaly in any record template
 
 ## Sponsored by
 
-- Linky Systems: https://linkysystems.com
+- Linky: https://linkysystems.com
