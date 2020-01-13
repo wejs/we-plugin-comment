@@ -21,7 +21,6 @@ module.exports = {
     .count(res.locals.query)
     .then( (count)=> {
       res.status(200).send({ count: count });
-      return null;
     })
     .catch(res.queryError);
   },
@@ -77,8 +76,6 @@ module.exports = {
         return null;
       })
       .catch(res.queryError);
-
-      return null;
     })
     .catch(res.queryError);
   },
@@ -100,8 +97,6 @@ module.exports = {
       } else {
         res.goTo( record.getUrlPathAlias() );
       }
-
-      return null;
     })
     .catch(res.queryError);
   },

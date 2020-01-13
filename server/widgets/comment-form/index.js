@@ -7,15 +7,13 @@
 module.exports = function (projectPath, Widget) {
   const widget = new Widget('comment-form', __dirname);
 
-  widget.viewMiddleware = function viewMiddleware(widget, req, res, next) {
+  widget.viewMiddleware = function (w, req, res, next) {
     if (res.locals.model && res.locals.id) {
-      widget.haveRecord = true;
+      w.haveRecord = true;
     } else {
-      widget.hide = true;
+      w.hide = true;
     }
     next();
-
-    return null;
   }
 
   return widget;

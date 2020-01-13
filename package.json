@@ -3,7 +3,7 @@
   "description": "We.js comments plugin",
   "version": "2.0.0",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "plugin.js",
   "dependencies": {},
   "scripts": {},
   "author": "Alberto Souza <contato@albertosouza.net>",
