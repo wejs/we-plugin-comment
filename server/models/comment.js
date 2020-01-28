@@ -47,6 +47,10 @@ module.exports = function Model(we) {
     options: {
       classMethods: {
         getLastestCommentsAndCount(modelId, modelName, done) {
+          if (!modelId || !modelName) {
+            return done(null, { comments: [], count: 0 });
+          }
+
           we.db.models.comment
           .count({
             where: {
@@ -68,8 +72,7 @@ module.exports = function Model(we) {
               include: [{model: we.db.models.user, as: 'creator', attributes: ['id', 'displayName']}]
             })
             .then( (comments)=> {
-              done(null, { comments: comments, count: count })
-              return null;
+              return done(null, { comments: comments, count: count });
             });
           })
           .catch(done);
@@ -79,19 +82,26 @@ module.exports = function Model(we) {
       hooks: {
         beforeValidate(record) {
           return new Promise( (resolve, reject)=> {
-            if( !we.db.models[record.modelName] ) {
-              return reject('modelName.required');
+            if(!record.modelName || !we.db.models[record.modelName] ) {
+              return reject('we-plugin-comments:modelName.required');
+            }
+
+            if (!record.modelId) {
+              return reject('we-plugin-comments:modelId.required');
             }
 
             we.db.models[record.modelName]
-            .findById(record.modelId)
+            .findOne({
+              where: {
+                id: record.modelId
+              }
+            })
             .then( (commentedRecord)=> {
               if(!commentedRecord) {
                 reject('modelId.required');
               } else {
                 resolve();
               }
-              return null;
             })
             .catch(reject);
           });
